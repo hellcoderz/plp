@@ -11,10 +11,7 @@ enum TYPE{
 
 struct token{
 	TYPE type;
-	union {
-		int num;
-		char *str;
-	} value;
+	string value;
 };
 
 struct list{
@@ -94,7 +91,12 @@ TYPE gettok(){
 	//operator
 	else if(ch == '+' || ch == '-' || ch == '*' || ch == '<' || ch == '>' || ch == '&' || ch == '.' || ch == '@' || ch == '/' || ch == ':' || ch == '=' || ch == '~' || ch == '|' || ch == '$' || ch == '!' || ch == '#' || ch == '%' || ch == '^' || ch == '_' || ch == '[' || ch == ']' || ch == '{' || ch == '}' || ch == '"' || ch == '`' || ch == '?'){
 		lexeme += ch;
-		lastChar = in.get();
+		ch = in.get();
+		while(ch == '+' || ch == '-' || ch == '*' || ch == '<' || ch == '>' || ch == '&' || ch == '.' || ch == '@' || ch == '/' || ch == ':' || ch == '=' || ch == '~' || ch == '|' || ch == '$' || ch == '!' || ch == '#' || ch == '%' || ch == '^' || ch == '_' || ch == '[' || ch == ']' || ch == '{' || ch == '}' || ch == '"' || ch == '`' || ch == '?'){
+			lexeme += ch;
+			ch = in.get();
+		}	
+		lastChar = ch;
 		return OPERATOR;
 	}
 
@@ -134,11 +136,18 @@ int main(){
 	in.open("input");
 	out.open("output");
 	TYPE t;
+
+	list *root, *head;
+	root = NULL;
+	token temp_token;
+	list *temp_list;
+
 	while((t = gettok()) != END_OF_FILE){
+		temp_list = new list;
+
 		if(t == IDENTIFIER){
 			cout << "identifier: " << lexeme << endl;
-		}
-		else if(t == INTEGER){
+		}else if(t == INTEGER){
 			cout << "number: " << lexeme << endl;
 		}else if(t == COMMENT){
 			cout << "commnent: " << lexeme << endl;
@@ -158,6 +167,31 @@ int main(){
 			cout << "ERROR" << endl;
 			exit(0);
 		}
+
+		if(root == NULL){
+			temp_list->data = new token;
+			temp_list->data->type = t;
+			temp_list->data->value = lexeme;
+			temp_list->next = NULL;
+			head = temp_list;
+			root = head;
+		}else{
+			temp_list->data = new token;
+			temp_list->data->type = t;
+			temp_list->data->value = lexeme;
+			temp_list->next = NULL;
+			head->next = temp_list;
+			head = head->next;
+
+		}
+
+	}
+
+	list *temp;
+	temp = root;
+	while(temp->next != NULL){
+		cout << root->data->value << endl;
+		temp = temp->next;
 	}
 
 	in.close();
