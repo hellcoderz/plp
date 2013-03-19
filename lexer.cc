@@ -132,6 +132,101 @@ TYPE gettok(){
 	return ERROR;
 }
 
+enum ExprType { E_NIL, E_DUMMY, E_INTEGER, E_IDENTIFIER, E_BOOLEAN, E_BINOP, E_UNARYOP, E_STRING, E_LET, E_LAMBDA, E_WHERE, E_TAU, E_AUG, E_IFTHEN, E_GAMMA };
+
+class ExprAST{
+public:
+	virtual ~ExprAST() {}
+};
+
+class IntegerExprAST: public ExprAST{
+	ExprType type;
+	int Val;
+public:
+	IntegerExprAST(int val){
+		type = E_INTEGER;
+		Val = val;
+	}
+};
+
+class IdentifierExprAST: public ExprAST{
+	ExprType type;
+	string Val;
+public:
+	IdentifierExprAST(string val){
+		type = E_IDENTIFIER;
+		Val = val;
+	}
+};
+
+class StringExprAST: public ExprAST{
+	ExprType type;
+	string Val;
+public:
+	StringExprAST(string val){
+		type = E_STRING;
+		Val = val;
+	}
+};
+
+class BooleanExprAST : public ExprAST{
+	ExprType type;
+	bool Val;
+public:
+	BooleanExprAST(bool val){
+		type = E_BINOP;
+		Val = val;
+	}
+};
+
+class NilExprAST : public ExprAST{
+	ExprType type;
+public:
+	NilExprAST(){
+		type = E_NIL;
+	}
+};
+
+class DummyExprAST : public ExprAST{
+	ExprType type;
+public:
+	DummyExprAST(){
+		type = E_DUMMY;
+	}
+};
+
+enum BINOP { B_PLUS, B_MINUS, B_MUL, B_DIV, B_NEG, B_OR, B_AND, B_NOT, B_GR, B_GE, B_LS, B_LE, B_EQ, B_NE, B_AUG};
+
+class BinaryOpExprAST : public ExprAST{
+	ExprType type;
+	ExprAST *Left;
+	ExprAST *Right;
+	BINOP OP;
+public:
+	BinaryOpExprAST(ExprAST *left, ExprAST *right,BINOP op) {
+		type = E_BINOP;
+		Left = left;
+		Right = right;
+		OP = op;
+	}
+};
+
+class LetExprAST: public ExprAST{
+	ExprType type;
+	ExprAST *D;
+	ExprAST *E;
+public:
+	LetExprAST(ExprAST *d, ExprAST *e){
+		type = E_LET;
+		D = d;
+		E = e;
+	}
+};
+
+//class LambdaExprAST: public ExprAST{
+//	ExprAST *
+//};
+
 int main(){
 	in.open("input");
 	out.open("output");
@@ -144,7 +239,7 @@ int main(){
 
 	while((t = gettok()) != END_OF_FILE){
 		temp_list = new list;
-
+		/*
 		if(t == IDENTIFIER){
 			cout << "identifier: " << lexeme << endl;
 		}else if(t == INTEGER){
@@ -167,8 +262,10 @@ int main(){
 			cout << "ERROR" << endl;
 			exit(0);
 		}
+		*/
 
 		if(root == NULL){
+			cout << "Root is NULL" << endl;
 			temp_list->data = new token;
 			temp_list->data->type = t;
 			temp_list->data->value = lexeme;
@@ -176,6 +273,7 @@ int main(){
 			head = temp_list;
 			root = head;
 		}else{
+			cout << "Root is not NULL" << endl;
 			temp_list->data = new token;
 			temp_list->data->type = t;
 			temp_list->data->value = lexeme;
@@ -190,7 +288,7 @@ int main(){
 	list *temp;
 	temp = root;
 	while(temp->next != NULL){
-		cout << root->data->value << endl;
+		cout << temp->data->value << endl;
 		temp = temp->next;
 	}
 
