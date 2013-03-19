@@ -2,6 +2,9 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <vector>
+
+#define DEBUG
 
 using namespace std;
 
@@ -132,7 +135,11 @@ TYPE gettok(){
 	return ERROR;
 }
 
-enum ExprType { E_NIL, E_DUMMY, E_INTEGER, E_IDENTIFIER, E_BOOLEAN, E_BINOP, E_UNARYOP, E_STRING, E_LET, E_LAMBDA, E_WHERE, E_TAU, E_AUG, E_IFTHEN, E_GAMMA };
+/////////////////////
+////AST NODES////////
+/////////////////////
+
+enum ExprType { E_NIL, E_DUMMY, E_INTEGER, E_IDENTIFIER, E_BOOLEAN, E_BINOP, E_UNARYOP, E_STRING, E_LET, E_LAMBDA, E_WHERE, E_TAU, E_AUG, E_IFTHEN, E_GAMMA, E_INFIX, E_WITHIN, E_AND, E_REC, E_ASSIGN, E_FUNC_FORM, E_PARENS, E_LIST };
 
 class ExprAST{
 public:
@@ -195,6 +202,25 @@ public:
 	}
 };
 
+class TauExprAST: public ExprAST{
+	ExprType type;
+	vector<ExprAST*> Ta;
+public:
+	TauExprAST(vector<ExprAST*> ta){
+		type = E_TAU;
+		Ta = ta;
+	}
+};
+
+class AugExprAST: public ExprAST{
+	ExprType type;
+	ExprAST *Ta;
+	ExprAST *Tc;
+public:
+	
+};
+
+
 enum BINOP { B_PLUS, B_MINUS, B_MUL, B_DIV, B_NEG, B_OR, B_AND, B_NOT, B_GR, B_GE, B_LS, B_LE, B_EQ, B_NE, B_AUG};
 
 class BinaryOpExprAST : public ExprAST{
@@ -223,9 +249,171 @@ public:
 	}
 };
 
-//class LambdaExprAST: public ExprAST{
-//	ExprAST *
-//};
+class LambdaExprAST: public ExprAST{
+	ExprType type;
+	vector<ExprAST*> Vb;
+	ExprAST *E;
+public:
+	LambdaExprAST(vector<ExprAST*> vb, ExprAST *e){
+		Vb = vb;
+		E = e;
+		type = E_LAMBDA;
+	}
+};
+
+class WhereExprAST: public ExprAST{
+	ExprType type;
+	ExprAST *T;
+	ExprAST *Dr;
+public:
+	WhereExprAST(ExprAST *t, ExprAST *dr){
+		type = E_WHERE;
+		T = t;
+		Dr = dr;
+	}
+};
+
+class InfixExprAST: public ExprAST{
+	ExprType type;
+	ExprAST *A;
+	ExprAST *Identifier;
+	ExprAST *B;
+public:
+	InfixExprAST(ExprAST *a,ExprAST *identifier, ExprAST *b){
+		type = E_INFIX;
+		A = a;
+		Identifier = identifier;
+		B = b;
+	}
+};
+
+class WithinExprAST: public ExprAST{
+	ExprType type;
+	ExprAST *Da;
+	ExprAST *D;
+public:
+	WithinExprAST(ExprAST *da, ExprAST *d){
+		type = E_WITHIN;
+		Da = da;
+		D = d;
+	}
+};
+
+class AndExprAST: public ExprAST{
+	vector<ExprAST*> Dr;
+	ExprType type;
+public:
+	AndExprAST(vector<ExprAST*> dr){
+		Dr = dr;
+		type = E_AND;
+	}
+};
+
+class RecExprAST: public ExprAST{
+	ExprType type;
+	ExprAST *Db;
+public:
+	RecExprAST(ExprAST *db){
+		type = E_REC;
+		Db = db;
+	}
+};
+
+class AssignExprAST: public ExprAST{
+	ExprAST *Vl;
+	ExprType type;
+public:
+	AssignExprAST(ExprAST *vl){
+		Vl = vl;
+		type = E_ASSIGN;
+	}
+};
+
+class FuncExprAST: public ExprAST{
+	ExprType type;
+	ExprAST *Identifier;
+	vector<ExprAST*> Vb;
+	ExprAST *E;
+public:
+	FuncExprAST(ExprAST *identifier, vector<ExprAST*> vb, ExprAST *e){
+		type = E_FUNC_FORM;
+		Identifier = identifier;
+		Vb = vb;
+		E = e;
+	}
+};
+
+class ParensExprAST: public ExprAST{
+	ExprType type;
+public:
+	ParensExprAST(){
+		type = E_PARENS;
+	}
+};
+
+
+//class 
+
+////////////////////////
+/////AST GENERATE///////
+////////////////////////
+
+void Read(string st){
+	gettok();
+	if(lexeme != st){
+		cout << "Error reading " << st << endl;
+		exit(0);
+	}
+	gettok();
+}
+
+ExprAST *E(){
+	ExprAST *AST_D;
+	vector<ExprAST*> AST_Vb;
+	ExprAST *AST_E;
+
+	if(lexeme == "let" || lexeme == "fn"){
+		if(lexeme == "let"){
+			AST_D = D();
+			Read("in");
+			AST_E = E();
+			return (new LetExprAST(AST_D,AST_E));
+		}else{
+			do{
+				AST_Vb.push_back(Vb());
+				gettok();
+			}while(lexeme != ".");
+			Read(".");
+			AST_E = E();
+			return (new LambdaExprAST(AST_Vb,AST_E));			
+		}
+	}
+	return Ew();
+}
+
+ExprAST *Ew(){
+	ExprAST *AST_T;
+	ExprAST *AST_Dr;
+
+	AST_T = T();
+	Read("where");
+	AST_Dr = Dr();
+	return (new WhereExprAST(AST_T,AST_Dr));
+}
+
+ExprAST *T(){
+
+}
+
+void Mainloop(){
+	ExprAST *AST;
+	switch(gettok()){
+		case END_OF_FILE: exit(0); break;
+		default: AST = E(); break
+	}
+
+	//print(AST);
+}
 
 int main(){
 	in.open("input");
@@ -236,10 +424,10 @@ int main(){
 	root = NULL;
 	token temp_token;
 	list *temp_list;
-
+/*
 	while((t = gettok()) != END_OF_FILE){
 		temp_list = new list;
-		/*
+		
 		if(t == IDENTIFIER){
 			cout << "identifier: " << lexeme << endl;
 		}else if(t == INTEGER){
@@ -262,7 +450,7 @@ int main(){
 			cout << "ERROR" << endl;
 			exit(0);
 		}
-		*/
+		
 
 		if(root == NULL){
 			cout << "Root is NULL" << endl;
@@ -291,7 +479,7 @@ int main(){
 		cout << temp->data->value << endl;
 		temp = temp->next;
 	}
-
+*/
 	in.close();
 	out.close();
 
