@@ -147,9 +147,9 @@ public:
 };
 
 class IntegerExprAST: public ExprAST{
+public:
 	ExprType type;
 	int Val;
-public:
 	IntegerExprAST(int val){
 		type = E_INTEGER;
 		Val = val;
@@ -157,9 +157,9 @@ public:
 };
 
 class IdentifierExprAST: public ExprAST{
+public:
 	ExprType type;
 	string Val;
-public:
 	IdentifierExprAST(string val){
 		type = E_IDENTIFIER;
 		Val = val;
@@ -167,9 +167,9 @@ public:
 };
 
 class StringExprAST: public ExprAST{
+public:
 	ExprType type;
 	string Val;
-public:
 	StringExprAST(string val){
 		type = E_STRING;
 		Val = val;
@@ -177,9 +177,9 @@ public:
 };
 
 class BooleanExprAST : public ExprAST{
+public:
 	ExprType type;
 	bool Val;
-public:
 	BooleanExprAST(bool val){
 		type = E_BINOP;
 		Val = val;
@@ -187,25 +187,25 @@ public:
 };
 
 class NilExprAST : public ExprAST{
-	ExprType type;
 public:
+	ExprType type;
 	NilExprAST(){
 		type = E_NIL;
 	}
 };
 
 class DummyExprAST : public ExprAST{
-	ExprType type;
 public:
+	ExprType type;
 	DummyExprAST(){
 		type = E_DUMMY;
 	}
 };
 
 class TauExprAST: public ExprAST{
+public:
 	ExprType type;
 	vector<ExprAST*> Ta;
-public:
 	TauExprAST(vector<ExprAST*> ta){
 		type = E_TAU;
 		Ta = ta;
@@ -213,10 +213,10 @@ public:
 };
 
 class AugExprAST: public ExprAST{
+public:
 	ExprType type;
 	ExprAST *Ta;
 	ExprAST *Tc;
-public:
 	AugExprAST(ExprAST *ta, ExprAST *tc){
 		type = E_AUG;
 		Ta = ta;
@@ -225,11 +225,11 @@ public:
 };
 
 class CondExprAST: public ExprAST{
+public:
 	ExprType type;
 	ExprAST *B;
 	ExprAST *Tc_if;
 	ExprAST *Tc_else;
-public:
 	CondExprAST(ExprAST *b, ExprAST *tc_if, ExprAST *tc_else){
 		type = E_COND;
 		B = b;
@@ -239,14 +239,16 @@ public:
 };
 
 
-enum BINOP { B_PLUS, B_MINUS, B_MUL, B_DIV, B_NEG, B_OR, B_AND, B_NOT, B_GR, B_GE, B_LS, B_LE, B_EQ, B_NE, B_AUG};
+enum BINOP { B_PLUS, B_MINUS, B_MUL, B_DIV, B_NEG, B_OR, B_AND, B_NOT, B_GR, B_GE, B_LS, B_LE, B_EQ, B_NE, B_AUG, B_EXP};
+
+enum UNARYOP { U_NOT, U_NEG };
 
 class BinaryOpExprAST : public ExprAST{
+public:
 	ExprType type;
 	ExprAST *Left;
 	ExprAST *Right;
 	BINOP OP;
-public:
 	BinaryOpExprAST(ExprAST *left, ExprAST *right,BINOP op) {
 		type = E_BINOP;
 		Left = left;
@@ -255,11 +257,23 @@ public:
 	}
 };
 
+class UnaryOpExprAST : public ExprAST{
+public:
+	ExprType type;
+	ExprAST *Node;
+	UNARYOP OP;
+	UnaryOpExprAST(ExprAST *node, UNARYOP op){
+		type = E_UNARYOP;
+		Node = node;
+		OP = op;
+	}
+};
+
 class LetExprAST: public ExprAST{
+public:
 	ExprType type;
 	ExprAST *D;
 	ExprAST *E;
-public:
 	LetExprAST(ExprAST *d, ExprAST *e){
 		type = E_LET;
 		D = d;
@@ -268,10 +282,10 @@ public:
 };
 
 class LambdaExprAST: public ExprAST{
+public:
 	ExprType type;
 	vector<ExprAST*> Vb;
 	ExprAST *E;
-public:
 	LambdaExprAST(vector<ExprAST*> vb, ExprAST *e){
 		Vb = vb;
 		E = e;
@@ -280,10 +294,10 @@ public:
 };
 
 class WhereExprAST: public ExprAST{
+public:
 	ExprType type;
 	ExprAST *T;
 	ExprAST *Dr;
-public:
 	WhereExprAST(ExprAST *t, ExprAST *dr){
 		type = E_WHERE;
 		T = t;
@@ -292,11 +306,11 @@ public:
 };
 
 class InfixExprAST: public ExprAST{
+public:
 	ExprType type;
 	ExprAST *A;
 	ExprAST *Identifier;
 	ExprAST *B;
-public:
 	InfixExprAST(ExprAST *a,ExprAST *identifier, ExprAST *b){
 		type = E_INFIX;
 		A = a;
@@ -306,10 +320,10 @@ public:
 };
 
 class WithinExprAST: public ExprAST{
+public:
 	ExprType type;
 	ExprAST *Da;
 	ExprAST *D;
-public:
 	WithinExprAST(ExprAST *da, ExprAST *d){
 		type = E_WITHIN;
 		Da = da;
@@ -318,9 +332,9 @@ public:
 };
 
 class AndExprAST: public ExprAST{
+public:
 	vector<ExprAST*> Dr;
 	ExprType type;
-public:
 	AndExprAST(vector<ExprAST*> dr){
 		Dr = dr;
 		type = E_AND;
@@ -328,9 +342,9 @@ public:
 };
 
 class RecExprAST: public ExprAST{
+public:
 	ExprType type;
 	ExprAST *Db;
-public:
 	RecExprAST(ExprAST *db){
 		type = E_REC;
 		Db = db;
@@ -338,9 +352,9 @@ public:
 };
 
 class AssignExprAST: public ExprAST{
+public:
 	ExprAST *Vl;
 	ExprType type;
-public:
 	AssignExprAST(ExprAST *vl){
 		Vl = vl;
 		type = E_ASSIGN;
@@ -348,11 +362,11 @@ public:
 };
 
 class FuncExprAST: public ExprAST{
+public:
 	ExprType type;
 	ExprAST *Identifier;
 	vector<ExprAST*> Vb;
 	ExprAST *E;
-public:
 	FuncExprAST(ExprAST *identifier, vector<ExprAST*> vb, ExprAST *e){
 		type = E_FUNC_FORM;
 		Identifier = identifier;
@@ -362,8 +376,8 @@ public:
 };
 
 class ParensExprAST: public ExprAST{
-	ExprType type;
 public:
+	ExprType type;
 	ParensExprAST(){
 		type = E_PARENS;
 	}
@@ -414,7 +428,6 @@ ExprAST *Ew(){
 	ExprAST *AST_Dr;
 
 	AST_T = T();
-	gettok()
 	if(lexeme == "where"){
 		AST_Dr = Dr();
 		return (new WhereExprAST(AST_T,AST_Dr));
@@ -440,13 +453,11 @@ ExprAST *Ta(){
 	ExprAST *AST_Left
 
 	AST_Ta = Tc();
-	gettok();
 	AST_Left = AST_Tc;
 	while(lexeme == "aug"){
 		gettok();
 		AST_Tc = Tc();
 		AST_Left = new TauExprAST(AST_Left,AST_Tc);
-		gettok();
 	}
 	return AST_Left;
 }
@@ -457,7 +468,6 @@ ExprAST *Tc(){
 	ExprAST *AST_Tc_else;
 
 	AST_B = B();
-	gettok();
 	if(lexeme == "->"){
 		gettok();
 		AST_Tc_if = Tc();
@@ -470,9 +480,155 @@ ExprAST *Tc(){
 }
 
 ExprAST *B(){
-	
+	ExprAST *AST_B;
+	ExprAST *AST_Bt;
+
+	AST_B = Bt();
+	while(lexeme == "or"){
+		gettok();
+		AST_Bt = Bt();
+		AST_B = new BinaryOpExprAST(AST_B,AST_Bt,B_OR);
+	}
+
+	return AST_B;
 }
 
+ExprAST *Bt(){
+	ExprAST *AST_Bt;
+	ExprAST *AST_Bs;
+
+	AST_Bt = Bs();
+	while(lexeme == "&"){
+		gettok();
+		AST_Bs = Bs();
+		AST_Bt = new BinaryOpExprAST(AST_Bt,AST_Bs,B_AND);
+	}
+
+	return AST_Bt;
+}
+
+ExprAST *Bs(){
+	ExprAST *AST_Bp;
+
+	if(lexeme == "not"){
+		AST_Bp = Bp(); 
+		return (new UnaryOpExprAST(AST_Bp,U_NOT));
+	}else{
+		return Bp();
+	}
+}
+
+ExprAST *Bp(){
+	ExprAST *AST_Left;
+	ExprAST *AST_Right;
+
+	AST_Left = A();
+	if(lexeme = "gr" and lexeme == ">"){
+		AST_Right = A();
+		return (new BinaryOpExprAST(AST_Left,AST_Right,B_GR));
+	}else if(lexeme = "ge" and lexeme == ">="){
+		AST_Right = A();
+		return (new BinaryOpExprAST(AST_Left,AST_Right,B_GE));
+	}else if(lexeme = "ls" and lexeme == "<"){
+		AST_Right = A();
+		return (new BinaryOpExprAST(AST_Left,AST_Right,B_LS));
+	}else if(lexeme = "le" and lexeme == "<="){
+		AST_Right = A();
+		return (new BinaryOpExprAST(AST_Left,AST_Right,B_LE));
+	}else if(lexeme = "eq"){
+		AST_Right = A();
+		return (new BinaryOpExprAST(AST_Left,AST_Right,B_EQ));
+	}else if(lexeme = "ne"){
+		AST_Right = A();
+		return (new BinaryOpExprAST(AST_Left,AST_Right,B_NE));
+	}
+
+	return AST_Left;
+}
+
+ExprAST *A(){
+	ExprAST *AST_A;
+	ExprAST *AST_At;
+
+	if(lexeme == "+" || lexeme == "-"){
+		if(lexeme == "+"){
+			return At();
+		}else{
+			AST_At = At();
+			return (new UnaryOpExprAST(AST_At,U_NEG)); 
+		}
+	}else{
+		AST_A = At();
+		while(lexeme == "+" || lexeme == "-"){
+			if(lexeme == "+"){
+				AST_At = At();
+				AST_A = new BinaryOpExprAST(AST_A,AST_At,B_PLUS);
+			}else{
+				AST_At = At();
+				AST_A = new BinaryOpExprAST(AST_A,AST_At,B_MINUS);
+			}
+		}
+
+		return AST_A;
+	}
+}
+
+ExprAST *At(){
+	ExprAST *AST_At;
+	ExprAST *AST_Af;
+
+	AST_At = Af();
+	while(lexeme == "*" || lexeme == "/"){
+		if(lexeme == "/"){
+			AST_Af = Af();
+			AST_At = new BinaryOpExprAST(AST_At,AST_Af,B_MUL);
+		}else{
+			AST_Af = Af();
+			AST_At = new BinaryOpExprAST(AST_At,AST_Af,B_DIV);
+		}
+	}
+
+	return AST_At;	
+}
+
+ExprAST *At(){
+	ExprAST *AST_Ap;
+	ExprAST *AST_Af;
+
+	AST_Ap = Ap();
+	while(lexeme == "**"){
+		
+		AST_Af = Af();
+		AST_Ap = new BinaryOpExprAST(AST_Ap,AST_Af,B_EXP);
+	}
+
+	return AST_Ap;
+}
+
+ExprAST *Ap(){
+	ExprAST *AST_Ap;
+	ExprAST *AST_R;
+	ExprAST AST_Id;
+
+	AST_Ap = R();
+	while(lexeme == "@"){
+		if(gettok() == IDENTIFIER){
+			AST_Id = new IdentifierExprAST(lexeme);
+			AST_R = R();
+			AST_Ap = new InfixExprAST(AST_Ap,AST_Id,AST_R);
+		}
+	}
+
+	return AST_R;
+}
+
+ExprAST *R(){
+	ExprAST *AST_R;
+	ExprAST *AST_Rn;
+
+	AST_R = Rn();
+	
+}
 
 void Mainloop(){
 	ExprAST *AST;
