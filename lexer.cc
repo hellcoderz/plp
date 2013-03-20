@@ -1257,6 +1257,12 @@ void print(ExprAST *AST, int DEPTH){
 		cout << "within" << endl;
 		print(wit->Da, DEPTH);
 		print(wit->D, DEPTH);
+	}else if(type == E_AND){
+		AndExprAST *an = (AndExprAST*) AST;
+		cout << "and" << endl;
+		for(int i = 0;i<an->Dr.size();i++){
+			print(an->Dr[i], DEPTH);
+		}
 	}
 
 }
