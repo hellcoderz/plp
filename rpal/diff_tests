@@ -1,7 +1,0 @@
-#!/bin/sh
-#
-for i in `ls sir`
-do
-      echo "Now running test program" $i ...
-       diff -wB   sir/$i vik/$i.last
-done
