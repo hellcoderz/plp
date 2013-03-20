@@ -139,7 +139,7 @@ TYPE gettok(){
 ////AST NODES////////
 /////////////////////
 
-enum ExprType { E_NIL, E_DUMMY, E_INTEGER, E_IDENTIFIER, E_BOOLEAN, E_BINOP, E_UNARYOP, E_STRING, E_LET, E_LAMBDA, E_WHERE, E_TAU, E_AUG, E_IFTHEN, E_GAMMA, E_INFIX, E_WITHIN, E_AND, E_REC, E_ASSIGN, E_FUNC_FORM, E_PARENS, E_LIST };
+enum ExprType { E_NIL, E_DUMMY, E_INTEGER, E_IDENTIFIER, E_BOOLEAN, E_BINOP, E_UNARYOP, E_STRING, E_LET, E_LAMBDA, E_WHERE, E_TAU, E_AUG, E_COND, E_GAMMA, E_INFIX, E_WITHIN, E_AND, E_REC, E_ASSIGN, E_FUNC_FORM, E_PARENS, E_LIST };
 
 class ExprAST{
 public:
@@ -217,7 +217,25 @@ class AugExprAST: public ExprAST{
 	ExprAST *Ta;
 	ExprAST *Tc;
 public:
-	
+	AugExprAST(ExprAST *ta, ExprAST *tc){
+		type = E_AUG;
+		Ta = ta;
+		Tc = tc;
+	}
+};
+
+class CondExprAST: public ExprAST{
+	ExprType type;
+	ExprAST *B;
+	ExprAST *Tc_if;
+	ExprAST *Tc_else;
+public:
+	CondExprAST(ExprAST *b, ExprAST *tc_if, ExprAST *tc_else){
+		type = E_COND;
+		B = b;
+		Tc_if = tc_if;
+		Tc_else = tc_else;
+	}
 };
 
 
@@ -396,14 +414,65 @@ ExprAST *Ew(){
 	ExprAST *AST_Dr;
 
 	AST_T = T();
-	Read("where");
-	AST_Dr = Dr();
-	return (new WhereExprAST(AST_T,AST_Dr));
+	gettok()
+	if(lexeme == "where"){
+		AST_Dr = Dr();
+		return (new WhereExprAST(AST_T,AST_Dr));
+	}
+
+	return AST_T;
 }
 
 ExprAST *T(){
+	vector<ExprAST*> AST_Ta;
 
+	do{
+		AST_Ta.push_back(Ta());
+		gettok();
+	}while(lexeme == ",");
+
+	return (new TauExprAST(AST_Ta));
 }
+
+ExprAST *Ta(){
+	ExprAST *AST_Ta;
+	ExprAST *AST_Tc;
+	ExprAST *AST_Left
+
+	AST_Ta = Tc();
+	gettok();
+	AST_Left = AST_Tc;
+	while(lexeme == "aug"){
+		gettok();
+		AST_Tc = Tc();
+		AST_Left = new TauExprAST(AST_Left,AST_Tc);
+		gettok();
+	}
+	return AST_Left;
+}
+
+ExprAST *Tc(){
+	ExprAST *AST_B;
+	ExprAST *AST_Tc_if;
+	ExprAST *AST_Tc_else;
+
+	AST_B = B();
+	gettok();
+	if(lexeme == "->"){
+		gettok();
+		AST_Tc_if = Tc();
+		Read("|");
+		AST_Tc_else = Tc();
+		return (new CondExprAST(AST_B,AST_Tc_if,AST_Tc_else));
+	}
+
+	return (new CondExprAST(AST_B,AST_Tc_if,AST_Tc_else));
+}
+
+ExprAST *B(){
+	
+}
+
 
 void Mainloop(){
 	ExprAST *AST;
