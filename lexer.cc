@@ -463,9 +463,9 @@ ExprAST *E(){
 			AST_E = E();
 			return (new LetExprAST(AST_D,AST_E));
 		}else{
+			gettok();
 			do{
 				AST_Vb.push_back(Vb());
-				gettok();
 			}while(lexeme != ".");
 			Read(".");
 			AST_E = E();
@@ -768,7 +768,7 @@ ExprAST *Dr(){
 ExprAST *Db(){
 	ExprAST *AST_Vl;
 	ExprAST *AST_E;
-	vector<ExprAST*> Vb;
+	vector<ExprAST*> AST_Vb;
 	ExprAST *AST_D;
 
 	AST_Vl = Vl();
@@ -776,13 +776,25 @@ ExprAST *Db(){
 		gettok();
 		if(lexeme == "="){
 			AST_E = E();
-			return AST_E;
+			return (new AssignExprAST(AST_Vl,AST_E));
 		}
-
-		while()
+		gettok();
+		do{
+			AST_Vb.push_back(Vb());
+		}while(lexeme != "=")
+		AST_E = E();
+		return (new AssignExprAST(AST_Vl,AST_Vb,AST_E));
 	}
+	if(Token_type == BRACKET_OPEN){
+		gettok();
+		AST_D = D();
+		if(Token_type != BRACKET_CLOSE) p_error(")")
+		return AST_D;
+	}
+	p_error("Nothing to parse");
 	VL_FLAG = 0;
-
+	VB_FLAG = 0;
+	return (new ErrorExprAST());
 }
 
 ExprAST *Vl(){
