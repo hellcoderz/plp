@@ -8,7 +8,6 @@
 
 using namespace std;
 
-ExprAST *D(); ExprAST *Dr(); ExprAST *Da(); ExprAST *Db(); ExprAST *E(); ExprAST *Ew(); ExprAST *T(); ExprAST *Ta(); ExprAST *Tc(); ExprAST *B(); ExprAST *Bt(); ExprAST *Bs(); ExprAST *Bp(); ExprAST *A(); ExprAST *At(); ExprAST *Af(); ExprAST *Ap(); ExprAST *R(); ExprAST *Rn(); ExprAST *Vb(); ExprAST *Vl();
 
 enum TYPE{
 	IDENTIFIER, INTEGER, OPERATOR, STRING, BRACKET_OPEN, BRACKET_CLOSE, SEMICOLON, COMMA, END_OF_FILE, ERROR, COMMENT
@@ -163,7 +162,15 @@ enum ExprType { E_NIL, E_DUMMY, E_INTEGER, E_IDENTIFIER, E_BOOLEAN, E_BINOP, E_U
 class ExprAST{
 public:
 	virtual ~ExprAST() {}
+	virtual ExprType getType(){
+		return E_ERROR;
+	};
+	virtual vector<ExprAST*> *getVector(){
+		return NULL;
+	}
 };
+
+ExprAST *D(); ExprAST *Dr(); ExprAST *Da(); ExprAST *Db(); ExprAST *E(); ExprAST *Ew(); ExprAST *T(); ExprAST *Ta(); ExprAST *Tc(); ExprAST *B(); ExprAST *Bt(); ExprAST *Bs(); ExprAST *Bp(); ExprAST *A(); ExprAST *At(); ExprAST *Af(); ExprAST *Ap(); ExprAST *R(); ExprAST *Rn(); ExprAST *Vb(); ExprAST *Vl();
 
 class IntegerExprAST: public ExprAST{
 public:
@@ -183,6 +190,10 @@ public:
 		type = E_IDENTIFIER;
 		Val = val;
 	}
+
+	ExprType getType(){
+		return type;
+	}
 };
 
 class StringExprAST: public ExprAST{
@@ -192,6 +203,10 @@ public:
 	StringExprAST(string val){
 		type = E_STRING;
 		Val = val;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -203,6 +218,10 @@ public:
 		type = E_BINOP;
 		Val = val;
 	}
+
+	ExprType getType(){
+		return type;
+	}
 };
 
 class NilExprAST : public ExprAST{
@@ -211,6 +230,10 @@ public:
 	NilExprAST(){
 		type = E_NIL;
 	}
+
+	ExprType getType(){
+		return type;
+	}
 };
 
 class DummyExprAST : public ExprAST{
@@ -218,6 +241,10 @@ public:
 	ExprType type;
 	DummyExprAST(){
 		type = E_DUMMY;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -228,6 +255,10 @@ public:
 	TauExprAST(vector<ExprAST*> ta){
 		type = E_TAU;
 		Ta = ta;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -240,6 +271,10 @@ public:
 		type = E_AUG;
 		Ta = ta;
 		Tc = tc;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -254,6 +289,10 @@ public:
 		B = b;
 		Tc_if = tc_if;
 		Tc_else = tc_else;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -274,6 +313,10 @@ public:
 		Right = right;
 		OP = op;
 	}
+
+	ExprType getType(){
+		return type;
+	}
 };
 
 class UnaryOpExprAST : public ExprAST{
@@ -285,6 +328,10 @@ public:
 		type = E_UNARYOP;
 		Node = node;
 		OP = op;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -298,6 +345,10 @@ public:
 		D = d;
 		E = e;
 	}
+
+	ExprType getType(){
+		return type;
+	}
 };
 
 class LambdaExprAST: public ExprAST{
@@ -310,6 +361,10 @@ public:
 		E = e;
 		type = E_LAMBDA;
 	}
+
+	ExprType getType(){
+		return type;
+	}
 };
 
 class WhereExprAST: public ExprAST{
@@ -321,6 +376,10 @@ public:
 		type = E_WHERE;
 		T = t;
 		Dr = dr;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -336,6 +395,10 @@ public:
 		Identifier = identifier;
 		B = b;
 	}
+
+	ExprType getType(){
+		return type;
+	}
 };
 
 class WithinExprAST: public ExprAST{
@@ -348,6 +411,10 @@ public:
 		Da = da;
 		D = d;
 	}
+
+	ExprType getType(){
+		return type;
+	}
 };
 
 class AndExprAST: public ExprAST{
@@ -357,6 +424,10 @@ public:
 	AndExprAST(vector<ExprAST*> dr){
 		Dr = dr;
 		type = E_AND;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -368,15 +439,25 @@ public:
 		type = E_REC;
 		Db = db;
 	}
+
+	ExprType getType(){
+		return type;
+	}
 };
 
 class AssignExprAST: public ExprAST{
 public:
 	ExprAST *Vl;
+	ExprAST *E;
 	ExprType type;
-	AssignExprAST(ExprAST *vl){
+	AssignExprAST(ExprAST *vl, ExprAST *e){
 		Vl = vl;
+		E = e;
 		type = E_ASSIGN;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -392,6 +473,11 @@ public:
 		Vb = vb;
 		E = e;
 	}
+
+	ExprType getType(){
+		return type;
+	}
+
 };
 
 class ParensExprAST: public ExprAST{
@@ -399,6 +485,10 @@ public:
 	ExprType type;
 	ParensExprAST(){
 		type = E_PARENS;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -412,6 +502,10 @@ public:
 		Left = left;
 		Right = right;
 	}
+
+	ExprType getType(){
+		return type;
+	}
 };
 
 class VariableExprAST: public ExprAST{
@@ -422,6 +516,14 @@ public:
 		type = E_VARLIST;
 		List = list;
 	}
+
+	ExprType getType(){
+		return type;
+	}
+
+	vector<ExprAST*> *getVector(){
+		return &List;
+	}
 };
 
 class ErrorExprAST: public ExprAST{
@@ -429,6 +531,10 @@ class ErrorExprAST: public ExprAST{
 public:
 	ErrorExprAST() {
 		type = E_ERROR;
+	}
+
+	ExprType getType(){
+		return type;
 	}
 };
 
@@ -501,14 +607,14 @@ ExprAST *T(){
 ExprAST *Ta(){
 	ExprAST *AST_Ta;
 	ExprAST *AST_Tc;
-	ExprAST *AST_Left
+	ExprAST *AST_Left;
 
 	AST_Ta = Tc();
-	AST_Left = AST_Tc;
+	AST_Left = AST_Ta;
 	while(lexeme == "aug"){
 		gettok();
 		AST_Tc = Tc();
-		AST_Left = new TauExprAST(AST_Left,AST_Tc);
+		AST_Left = new AugExprAST(AST_Left,AST_Tc);
 	}
 	return AST_Left;
 }
@@ -527,7 +633,7 @@ ExprAST *Tc(){
 		return (new CondExprAST(AST_B,AST_Tc_if,AST_Tc_else));
 	}
 
-	return (new CondExprAST(AST_B,AST_Tc_if,AST_Tc_else));
+	return AST_B;
 }
 
 ExprAST *B(){
@@ -574,22 +680,22 @@ ExprAST *Bp(){
 	ExprAST *AST_Right;
 
 	AST_Left = A();
-	if(lexeme = "gr" and lexeme == ">"){
+	if(lexeme == "gr" && lexeme == ">"){
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_GR));
-	}else if(lexeme = "ge" and lexeme == ">="){
+	}else if(lexeme == "ge" && lexeme == ">="){
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_GE));
-	}else if(lexeme = "ls" and lexeme == "<"){
+	}else if(lexeme == "ls" && lexeme == "<"){
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_LS));
-	}else if(lexeme = "le" and lexeme == "<="){
+	}else if(lexeme == "le" && lexeme == "<="){
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_LE));
-	}else if(lexeme = "eq"){
+	}else if(lexeme == "eq"){
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_EQ));
-	}else if(lexeme = "ne"){
+	}else if(lexeme == "ne"){
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_NE));
 	}
@@ -658,18 +764,19 @@ ExprAST *Af(){
 ExprAST *Ap(){
 	ExprAST *AST_Ap;
 	ExprAST *AST_R;
-	ExprAST AST_Id;
+	ExprAST *AST_Id;
 
 	AST_Ap = R();
 	while(lexeme == "@"){
 		if(gettok() == IDENTIFIER){
 			AST_Id = new IdentifierExprAST(lexeme);
+			gettok();
 			AST_R = R();
 			AST_Ap = new InfixExprAST(AST_Ap,AST_Id,AST_R);
 		}
 	}
 
-	return AST_R;
+	return AST_Ap;
 }
 
 ExprAST *R(){
@@ -682,7 +789,7 @@ ExprAST *R(){
 		AST_Rn = Rn();
 		while(RN_FLAG == 1){
 			RN_FLAG = 0;
-			AST_R = new GammaExprAST(AST_R,AST_Rn)
+			AST_R = new GammaExprAST(AST_R,AST_Rn);
 			AST_Rn = Rn();
 		}
 	}
@@ -695,9 +802,9 @@ ExprAST *Rn(){
 
 	switch(gettok()){
 		case IDENTIFIER: RN_FLAG = 1; 
-						 if(lexeme == "true" || lexeme == "false")
+						 if(lexeme == "true" || lexeme == "false"){
 						 	if(lexeme == "true"){
-						 		gettok()
+						 		gettok();
 						 		return (new BooleanExprAST(true));
 						 	}else{
 						 		gettok();
@@ -743,7 +850,7 @@ ExprAST *D(){
 	return AST_Da;
 }
 
-ExprAST *T(){
+ExprAST *Da(){
 	vector<ExprAST*> AST_Dr;
 
 	do{
@@ -781,14 +888,14 @@ ExprAST *Db(){
 		gettok();
 		do{
 			AST_Vb.push_back(Vb());
-		}while(lexeme != "=")
+		}while(lexeme != "=");
 		AST_E = E();
-		return (new AssignExprAST(AST_Vl,AST_Vb,AST_E));
+		return (new FuncExprAST(AST_Vl,AST_Vb,AST_E));
 	}
 	if(Token_type == BRACKET_OPEN){
 		gettok();
 		AST_D = D();
-		if(Token_type != BRACKET_CLOSE) p_error(")")
+		if(Token_type != BRACKET_CLOSE) p_error(")");
 		return AST_D;
 	}
 	p_error("Nothing to parse");
@@ -801,6 +908,8 @@ ExprAST *Vl(){
 	ExprAST *AST_Id;
 	vector<ExprAST*> AST_List;
 
+	//cout << lexeme << " : " << Token_type << endl;
+
 	if(Token_type == IDENTIFIER){
 		AST_List.push_back(new IdentifierExprAST(lexeme));
 		while(gettok() == COMMA){
@@ -808,8 +917,9 @@ ExprAST *Vl(){
 			AST_List.push_back(new IdentifierExprAST(lexeme));
 		}
 		VL_FLAG = 1;
-		if(AST_List.size() > 1)
-			return (new IdentifierExprAST(AST_List[0]));
+		//cout << AST_List.size() << endl;
+		if(AST_List.size() < 2)
+			return (AST_List[0]);
 		else
 			return (new VariableExprAST(AST_List));
 	}
@@ -821,13 +931,13 @@ ExprAST *Vb(){
 	ExprAST *AST_Vl;
 
 	switch(Token_type){
-		case IDENTIFIER: VB_FLAG = 1; return (new (IdentifierExprAST(lexeme))); break;
+		case IDENTIFIER: VB_FLAG = 1; return (new IdentifierExprAST(lexeme)); break;
 		case BRACKET_OPEN: gettok(); AST_Vl = Vl(); if(VL_FLAG == 1){
 								if(Token_type == BRACKET_OPEN) p_error(")");
 								gettok();
 								return AST_Vl;
 		          		   }
-		          		   if(gettok() != BRACKET_CLOSE) p_error(")");
+		          		   if(Token_type != BRACKET_CLOSE) p_error(")");
 		          		   gettok();
 		          		   VB_FLAG = 1;
 		          		   return (new ParensExprAST()); break;
@@ -836,18 +946,43 @@ ExprAST *Vb(){
 
 }
 
+
+void print(ExprAST *AST, int DEPTH){
+	DEPTH++;
+	ExprType type = AST->getType();
+	for(int i=0; i<DEPTH;i++)
+			cout << "*" ;
+	//cout << AST->getType() << endl;
+	if( type == E_VARLIST){
+		//cout << "Variable List" << endl; 
+				
+		VariableExprAST *list = (VariableExprAST*)AST; 
+		cout << "," << endl;
+		for(int i = 0;i<list->List.size();i++){
+			print(list->List[i], DEPTH);
+		}
+	}else if(type == E_IDENTIFIER){
+		IdentifierExprAST *id = (IdentifierExprAST*)AST;
+		cout << id->Val;
+	}else if(type == E_PARENS){
+		cout << "()";
+	}
+
+	cout << endl;
+}
+
 void Mainloop(){
 	ExprAST *AST;
 	switch(gettok()){
 		case END_OF_FILE: exit(0); break;
-		default: AST = E(); break
+		default: AST = Vb(); break;
 	}
 
-	//print(AST);
+	print(AST, -1);
 }
 
 int main(){
-	in.open("input");
+	in.open("test");
 	out.open("output");
 	TYPE t;
 
@@ -855,6 +990,8 @@ int main(){
 	root = NULL;
 	token temp_token;
 	list *temp_list;
+
+	Mainloop();
 /*
 	while((t = gettok()) != END_OF_FILE){
 		temp_list = new list;
