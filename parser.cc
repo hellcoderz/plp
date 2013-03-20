@@ -167,6 +167,7 @@ public:
 	}
 };
 
+//class to hold IfThenElse node with its children
 class CondExprAST: public ExprAST{
 public:
 	ExprType type;
@@ -185,7 +186,7 @@ public:
 	}
 };
 
-
+//class to hold all other binary operation nodes
 class BinaryOpExprAST : public ExprAST{
 public:
 	ExprType type;
@@ -204,6 +205,7 @@ public:
 	}
 };
 
+//class to hold all unary operation nodes
 class UnaryOpExprAST : public ExprAST{
 public:
 	ExprType type;
@@ -220,6 +222,7 @@ public:
 	}
 };
 
+//class to hold Let node and its children
 class LetExprAST: public ExprAST{
 public:
 	ExprType type;
@@ -236,6 +239,7 @@ public:
 	}
 };
 
+//class to hold Lambda node and its children
 class LambdaExprAST: public ExprAST{
 public:
 	ExprType type;
@@ -252,6 +256,7 @@ public:
 	}
 };
 
+//class to hold Where node and its children
 class WhereExprAST: public ExprAST{
 public:
 	ExprType type;

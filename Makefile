@@ -1,6 +1,6 @@
 all:
 	g++ -O2 -g p1.cc -o p1
-cl:
+clean:
 	rm -f p1
 test:
 	chmod a+x difftest.pl
