@@ -1,0 +1,16 @@
+let 
+.function_form 
+..<ID:add> 
+..<ID:a> 
+..<ID:b> 
+..+ 
+...<ID:a> 
+...<ID:b> 
+.gamma 
+..<ID:Print> 
+..gamma 
+...<ID:add> 
+...tau 
+....<INT:4> 
+....<INT:5> 
+[lambda closure: b: 3]

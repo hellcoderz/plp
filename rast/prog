@@ -1,0 +1,10 @@
+where 
+.gamma 
+..<ID:Print> 
+..+ 
+...<ID:x> 
+...<INT:3> 
+.= 
+..<ID:x> 
+..<INT:4> 
+7

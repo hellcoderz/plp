@@ -1,0 +1,9 @@
+let 
+.= 
+..<ID:a> 
+..<STR:'Hello World.\n'> 
+.gamma 
+..<ID:Print> 
+..<ID:a> 
+Hello World.
+

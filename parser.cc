@@ -14,26 +14,42 @@
 
 using namespace std;
 
+//forward declaration of class
+class ExprAST;
+
+//forward declaration of functions
+ExprAST *D(); ExprAST *Dr(); ExprAST *Da(); ExprAST *Db(); ExprAST *E(); ExprAST *Ew(); ExprAST *T(); ExprAST *Ta(); ExprAST *Tc(); ExprAST *B(); ExprAST *Bt(); ExprAST *Bs(); ExprAST *Bp(); ExprAST *A(); ExprAST *At(); ExprAST *Af(); ExprAST *Ap(); ExprAST *R(); ExprAST *Rn(); ExprAST *Vb(); ExprAST *Vl(); void print(ExprAST *AST, int DEPTH);
+
+//reserved keywords
 string reserverd[] = {"let","in", "fn", "aug", "ge", "gr", "ls", "le", "or", "and", "ne", "eq", "neg", "not", "tau", "where", "within", "rec"};
 int no_of_keywords = 18;
 
+//boolean flags for Rn(), Vl() and Vb() rules
 bool RN_FLAG = 0, VL_FLAG = 0, VB_FLAG = 0;
 
+//eneumerations for expression types
 enum ExprType { E_NIL = 100, E_DUMMY, E_INTEGER, E_IDENTIFIER, E_BOOLEAN, E_BINOP, E_UNARYOP, E_STRING, E_LET, E_LAMBDA, E_WHERE, E_TAU, E_AUG, E_COND, E_GAMMA, E_INFIX, E_WITHIN, E_AND, E_REC, E_ASSIGN, E_FUNC_FORM, E_PARENS, E_LIST, E_ERROR, E_VARLIST };
 
+//eneumerations for binary operator types
+enum BINOP { B_PLUS, B_MINUS, B_MUL, B_DIV, B_NEG, B_OR, B_AND, B_NOT, B_GR, B_GE, B_LS, B_LE, B_EQ, B_NE, B_AUG, B_EXP};
+
+//eneumerations for unary operator types
+enum UNARYOP { U_NOT, U_NEG };
+
+//base class to hold all claases pointer
 class ExprAST{
 public:
 	virtual ~ExprAST() {}
 	virtual ExprType getType(){
 		return E_ERROR;
 	};
+	//function to get the type of class object
 	virtual vector<ExprAST*> *getVector(){
 		return NULL;
 	}
 };
 
-ExprAST *D(); ExprAST *Dr(); ExprAST *Da(); ExprAST *Db(); ExprAST *E(); ExprAST *Ew(); ExprAST *T(); ExprAST *Ta(); ExprAST *Tc(); ExprAST *B(); ExprAST *Bt(); ExprAST *Bs(); ExprAST *Bp(); ExprAST *A(); ExprAST *At(); ExprAST *Af(); ExprAST *Ap(); ExprAST *R(); ExprAST *Rn(); ExprAST *Vb(); ExprAST *Vl(); void print(ExprAST *AST, int DEPTH);
-
+//class to store Integer types
 class IntegerExprAST: public ExprAST{
 public:
 	ExprType type;
@@ -48,6 +64,7 @@ public:
 	}
 };
 
+//class to hold Identifier types
 class IdentifierExprAST: public ExprAST{
 public:
 	ExprType type;
@@ -62,6 +79,7 @@ public:
 	}
 };
 
+//class to hold String data
 class StringExprAST: public ExprAST{
 public:
 	ExprType type;
@@ -162,10 +180,6 @@ public:
 	}
 };
 
-
-enum BINOP { B_PLUS, B_MINUS, B_MUL, B_DIV, B_NEG, B_OR, B_AND, B_NOT, B_GR, B_GE, B_LS, B_LE, B_EQ, B_NE, B_AUG, B_EXP};
-
-enum UNARYOP { U_NOT, U_NEG };
 
 class BinaryOpExprAST : public ExprAST{
 public:
@@ -413,11 +427,15 @@ void p_error(string st){
 }
 
 void Read(string st){
-	if(lexeme != st){
+	if(lexeme != st ){
 		cout << "Error reading " << st << endl;
 		exit(0);
 	}
-	gettok();
+	if( Token_type != STRING){
+		gettok();
+	}else{
+		p_error("token not found");
+	}
 }
 
 ExprAST *E(){
@@ -427,8 +445,8 @@ ExprAST *E(){
 
 	//cout << "Inside E" << endl;
 	//cout << lexeme << endl;
-	if(lexeme == "let" || lexeme == "fn"){
-		if(lexeme == "let"){
+	if((lexeme == "let" || lexeme == "fn")  && Token_type != STRING){
+		if(lexeme == "let"  && Token_type != STRING){
 			gettok();  //changed
 			AST_D = D();
 			//cout << ">>>>>>>>>>>>>Type= " << AST_D->getType() << endl;
@@ -441,7 +459,7 @@ ExprAST *E(){
 			do{
 				
 				AST_Vb.push_back(Vb());
-			}while(lexeme != ".");
+			}while(lexeme != "."  && Token_type != STRING);
 			Read(".");
 			//cout << "lexeme = " << lexeme << endl;
 			AST_E = E();
@@ -458,7 +476,7 @@ ExprAST *Ew(){
 
 	//cout << "Inside Ew" << endl;
 	AST_T = T();
-	if(lexeme == "where"){
+	if(lexeme == "where" && Token_type != STRING){
 		gettok();   //changed
 		AST_Dr = Dr();
 		return (new WhereExprAST(AST_T,AST_Dr));
@@ -477,7 +495,7 @@ ExprAST *T(){
 		if(AST_Ta.size() >= 1)
 			gettok();
 		AST_Ta.push_back(Ta());
-	}while(lexeme == ",");
+	}while(Token_type == COMMA);
 
 	if(AST_Ta.size() > 1)
 		return (new TauExprAST(AST_Ta));
@@ -493,7 +511,7 @@ ExprAST *Ta(){
 	//cout << "Inside Ta" << endl;
 	AST_Ta = Tc();
 	AST_Left = AST_Ta;
-	while(lexeme == "aug"){
+	while(lexeme == "aug"  && Token_type != STRING){
 		gettok();
 		AST_Tc = Tc();
 		AST_Left = new AugExprAST(AST_Left,AST_Tc);
@@ -508,7 +526,7 @@ ExprAST *Tc(){
 
 	//cout << "Inside Tc" << endl;
 	AST_B = B();
-	if(lexeme == "->"){
+	if(lexeme == "->" && Token_type != STRING){
 		gettok();
 		AST_Tc_if = Tc();
 		Read("|");
@@ -525,7 +543,7 @@ ExprAST *B(){
 
 	//cout << "Inside B" << endl;
 	AST_B = Bt();
-	while(lexeme == "or"){
+	while(lexeme == "or" && Token_type != STRING){
 		gettok();
 		AST_Bt = Bt();
 		AST_B = new BinaryOpExprAST(AST_B,AST_Bt,B_OR);
@@ -540,7 +558,7 @@ ExprAST *Bt(){
 
 	//cout << "Inside Bt" << endl;
 	AST_Bt = Bs();
-	while(lexeme == "&"){
+	while(lexeme == "&" && Token_type != STRING){
 		gettok();
 		AST_Bs = Bs();
 		AST_Bt = new BinaryOpExprAST(AST_Bt,AST_Bs,B_AND);
@@ -553,7 +571,7 @@ ExprAST *Bs(){
 	ExprAST *AST_Bp;
 
 	//cout << "Inside Bs" << endl;
-	if(lexeme == "not"){
+	if(lexeme == "not" && Token_type != STRING){
 		gettok(); //new changed
 		AST_Bp = Bp(); 
 		return (new UnaryOpExprAST(AST_Bp,U_NOT));
@@ -568,27 +586,27 @@ ExprAST *Bp(){
 
 	//cout << "Inside Bp" << endl;
 	AST_Left = A();
-	if(lexeme == "gr" || lexeme == ">"){
+	if((lexeme == "gr" || lexeme == ">")  && Token_type != STRING){
 		gettok();  //changed
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_GR));
-	}else if(lexeme == "ge" || lexeme == ">="){
+	}else if((lexeme == "ge" || lexeme == ">=") && Token_type != STRING){
 		gettok();  //changed
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_GE));
-	}else if(lexeme == "ls" || lexeme == "<"){
+	}else if((lexeme == "ls" || lexeme == "<")  && Token_type != STRING){
 		gettok();  //changed
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_LS));
-	}else if(lexeme == "le" || lexeme == "<="){
+	}else if((lexeme == "le" || lexeme == "<=")  && Token_type != STRING){
 		gettok();  //changed
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_LE));
-	}else if(lexeme == "eq"){
+	}else if(lexeme == "eq" && Token_type != STRING){
 		gettok();  //changed
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_EQ));
-	}else if(lexeme == "ne"){
+	}else if(lexeme == "ne" && Token_type != STRING){
 		gettok();  //changed
 		AST_Right = A();
 		return (new BinaryOpExprAST(AST_Left,AST_Right,B_NE));
@@ -602,8 +620,9 @@ ExprAST *A(){
 	ExprAST *AST_At;
 
 	//cout << "Inside A" << endl;
-	if(lexeme == "+" || lexeme == "-"){
-		if(lexeme == "+"){
+	//cout << lexeme << " : " << Token_type << endl;
+	if((lexeme == "+" || lexeme == "-")  && Token_type != STRING){
+		if(lexeme == "+"  && Token_type != STRING){
 			gettok();  //changed
 			AST_A = At();
 		}else{
@@ -615,8 +634,8 @@ ExprAST *A(){
 
 		AST_A = At();
 	}
-	while(lexeme == "+" || lexeme == "-"){
-		if(lexeme == "+"){
+	while((lexeme == "+" || lexeme == "-")  && Token_type != STRING){
+		if(lexeme == "+" && Token_type != STRING){
 			gettok(); //changed
 			AST_At = At();
 			AST_A = new BinaryOpExprAST(AST_A,AST_At,B_PLUS);
@@ -638,8 +657,8 @@ ExprAST *At(){
 	//cout << lexeme << " : " << Token_type << endl;
 	AST_At = Af();
 	//cout << "Outside At" << endl;
-	while(lexeme == "*" || lexeme == "/"){
-		if(lexeme == "*"){
+	while((lexeme == "*" || lexeme == "/")  && Token_type != STRING){
+		if(lexeme == "*" && Token_type != STRING){
 			gettok();	//changed
 			AST_Af = Af();
 			AST_At = new BinaryOpExprAST(AST_At,AST_Af,B_MUL);
@@ -662,7 +681,7 @@ ExprAST *Af(){
 	AST_Ap = Ap();
 	//cout << "Outside Af" << endl;
 	//cout << "==============  " << lexeme << endl;
-	if(lexeme == "**"){
+	if(lexeme == "**" && Token_type != STRING){
 		gettok(); //changed
 		//cout << "inside Af if" << endl;
 		AST_Af = Af();
@@ -681,7 +700,7 @@ ExprAST *Ap(){
 	AST_Ap = R();
 	//cout << "out side Ap" << endl;
 	//cout << lexeme << " -> " << Token_type << endl;
-	while(lexeme == "@"){
+	while(lexeme == "@" && Token_type != STRING){
 	//	cout << "got @" << endl;
 		if(gettok() == IDENTIFIER){
 	//		cout << "got identifier" << endl;
@@ -736,18 +755,18 @@ ExprAST *Rn(){
 						 }
 						 RN_FLAG = 1; 
 						 //cout << "entered" << endl;
-						 if(lexeme == "true" || lexeme == "false"){
-						 	if(lexeme == "true"){
+						 if((lexeme == "true" || lexeme == "false") && Token_type != STRING){
+						 	if(lexeme == "true" && Token_type != STRING){
 						 		gettok();
 						 		return (new BooleanExprAST(true)); break;
 						 	}else{
 						 		gettok();
 						 		return (new BooleanExprAST(false)); break;
 						 	}
-						 }else if(lexeme == "nil"){
+						 }else if(lexeme == "nil" && Token_type != STRING){
 						 	gettok();
 						 	return (new NilExprAST()); break;
-						 }else if(lexeme == "dummy"){
+						 }else if(lexeme == "dummy" && Token_type != STRING){
 						 	gettok();
 						 	return (new DummyExprAST()); break;
 						 }else{
@@ -782,7 +801,7 @@ ExprAST *D(){
 
 	//cout << "Inside D" << endl;
 	AST_Da = Da();
-	if(lexeme == "within"){
+	if(lexeme == "within" && Token_type != STRING){
 		gettok();  //new changed
 		AST_D = D();
 		AST_Da = new WithinExprAST(AST_Da, AST_D);
@@ -799,7 +818,7 @@ ExprAST *Da(){
 		if(AST_Dr.size() >= 1)
 			gettok();
 		AST_Dr.push_back(Dr());
-	}while(lexeme == "and");
+	}while(lexeme == "and" && Token_type != STRING);
 
 	//changed
 	if(AST_Dr.size() > 1)
@@ -812,7 +831,7 @@ ExprAST *Dr(){
 	ExprAST *AST_Db;
 
 	//cout << "Inside Dr" << endl;
-	if(lexeme == "rec"){
+	if(lexeme == "rec" && Token_type != STRING){
 		gettok();  //changed
 		AST_Db = Db();
 		return (new RecExprAST(AST_Db));
@@ -831,7 +850,7 @@ ExprAST *Db(){
 	//cout << "Inside Db" << endl;
 	AST_Vl = Vl();
 	if(VL_FLAG == 1){	
-		if(lexeme == "="){
+		if(lexeme == "=" && Token_type != STRING){
 			//cout << "REed =" << endl;
 			gettok();  //changed
 			AST_E = E();
@@ -842,7 +861,7 @@ ExprAST *Db(){
 		do{
 			
 			AST_Vb.push_back(Vb());
-		}while(lexeme != "=");
+		}while(lexeme != "=" && Token_type != STRING);
 		//cout << "+++++++++++++++++++SIze of VB" << AST_Vb.size() << endl;
 		gettok();   //changed
 		AST_E = E();
