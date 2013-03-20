@@ -969,6 +969,7 @@ ExprAST *D(){
 	//cout << "Inside D" << endl;
 	AST_Da = Da();
 	if(lexeme == "within"){
+		gettok();  //new changed
 		AST_D = D();
 		AST_Da = new WithinExprAST(AST_Da, AST_D);
 	}
@@ -1251,6 +1252,11 @@ void print(ExprAST *AST, int DEPTH){
 		RecExprAST *re = (RecExprAST*) AST;
 		cout << "rec" << endl;
 		print(re->Db,DEPTH);
+	}else if(type == E_WITHIN){
+		WithinExprAST *wit = (WithinExprAST*) AST;
+		cout << "within" << endl;
+		print(wit->Da, DEPTH);
+		print(wit->D, DEPTH);
 	}
 
 }
