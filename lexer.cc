@@ -591,7 +591,7 @@ ExprAST *At(){
 	return AST_At;	
 }
 
-ExprAST *At(){
+ExprAST *Af(){
 	ExprAST *AST_Ap;
 	ExprAST *AST_Af;
 
@@ -627,7 +627,7 @@ ExprAST *R(){
 	ExprAST *AST_Rn;
 
 	AST_R = Rn();
-	
+
 }
 
 void Mainloop(){
