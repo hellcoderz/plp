@@ -625,8 +625,7 @@ ExprAST *E(){
 		}else{
 			gettok();
 			do{
-				if(AST_Vb.size() >= 1)
-					gettok();
+				
 				AST_Vb.push_back(Vb());
 			}while(lexeme != ".");
 			Read(".");
@@ -1026,8 +1025,7 @@ ExprAST *Db(){
 			return (new AssignExprAST(AST_Vl,AST_E));
 		}
 		do{
-			if(AST_Vb.size() >= 1)
-				gettok();
+			
 			AST_Vb.push_back(Vb());
 		}while(lexeme != "=");
 		//cout << "+++++++++++++++++++SIze of VB" << AST_Vb.size() << endl;
