@@ -10,7 +10,7 @@
 #include <locale>
 #include <string.h>
 
-#include "p.cc"
+#include "parser.cc"
 
 using namespace std;
 
