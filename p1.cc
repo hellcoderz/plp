@@ -36,7 +36,6 @@ void print_prog(){
 
 int main(int argc,char **argv){
 	
-	cout << argc << endl;
 	if(argc == 3){
 		in.open(argv[2]);
 		if(strcmp(argv[1],"-ast"))
