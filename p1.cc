@@ -100,7 +100,6 @@ int main(int argc,char **argv){
 	}
 */
 	in.close();
-	out.close();
 
 	return 0;
 }

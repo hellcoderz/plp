@@ -27,13 +27,13 @@ int no_of_keywords = 18;
 //boolean flags for Rn(), Vl() and Vb() rules
 bool RN_FLAG = 0, VL_FLAG = 0, VB_FLAG = 0;
 
-//eneumerations for expression types
+//enumerations for expression types
 enum ExprType { E_NIL = 100, E_DUMMY, E_INTEGER, E_IDENTIFIER, E_BOOLEAN, E_BINOP, E_UNARYOP, E_STRING, E_LET, E_LAMBDA, E_WHERE, E_TAU, E_AUG, E_COND, E_GAMMA, E_INFIX, E_WITHIN, E_AND, E_REC, E_ASSIGN, E_FUNC_FORM, E_PARENS, E_LIST, E_ERROR, E_VARLIST };
 
-//eneumerations for binary operator types
+//enumerations for binary operator types
 enum BINOP { B_PLUS, B_MINUS, B_MUL, B_DIV, B_NEG, B_OR, B_AND, B_NOT, B_GR, B_GE, B_LS, B_LE, B_EQ, B_NE, B_AUG, B_EXP};
 
-//eneumerations for unary operator types
+//enumerations for unary operator types
 enum UNARYOP { U_NOT, U_NEG };
 
 //base class to hold all claases pointer
@@ -94,6 +94,7 @@ public:
 	}
 };
 
+//class to hold Boolean data
 class BooleanExprAST : public ExprAST{
 public:
 	ExprType type;
@@ -108,6 +109,7 @@ public:
 	}
 };
 
+//class to hold nil node
 class NilExprAST : public ExprAST{
 public:
 	ExprType type;
@@ -120,6 +122,7 @@ public:
 	}
 };
 
+//class to hold dummy node
 class DummyExprAST : public ExprAST{
 public:
 	ExprType type;
@@ -132,10 +135,11 @@ public:
 	}
 };
 
+//class to hold tuple data structure
 class TauExprAST: public ExprAST{
 public:
 	ExprType type;
-	vector<ExprAST*> Ta;
+	vector<ExprAST*> Ta;	//vector to hold arbitary no. of childs 
 	TauExprAST(vector<ExprAST*> ta){
 		type = E_TAU;
 		Ta = ta;
@@ -146,6 +150,7 @@ public:
 	}
 };
 
+//class to hold 'aug' operator and its argument
 class AugExprAST: public ExprAST{
 public:
 	ExprType type;

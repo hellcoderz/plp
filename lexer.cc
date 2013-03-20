@@ -12,49 +12,62 @@
 
 using namespace std;
 
-// trim from start
+// trim string from start
 static inline std::string &ltrim(std::string &s) {
         s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
         return s;
 }
 
-// trim from end
+// trim string from end
 static inline std::string &rtrim(std::string &s) {
         s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
         return s;
 }
 
-// trim from both ends
+// trim string from both ends
 static inline std::string &trim(std::string &s) {
         return ltrim(rtrim(s));
 }
 
+//enumeration types for token types
 enum TYPE{
 	IDENTIFIER, INTEGER, OPERATOR, STRING, BRACKET_OPEN, BRACKET_CLOSE, SEMICOLON, COMMA, END_OF_FILE, ERROR, COMMENT
 };
 
+//struct to hold data for a token
+//not used in this program but will be used in next phase
 struct token{
 	TYPE type;
 	string value;
 };
 
+//list to hold all tokens
+//not used due to inefficient choice
 struct list{
 	token *data;
 	list *next;
 };
 
+//input file declaration 
 ifstream in;
-ofstream out;
+
+//global variable for storing current value of Token and its type
 string lexeme;
 TYPE Token_type;
+
+//character to hold current read character 
 char lastChar = ' ';
 
+//function to get a token with its type and return its type while storing both value
+//and type in variables 'lexeme' and 'Token_type' respectively
 TYPE gettok(){
 	char ch;
 	lexeme = " ";
 
-	//cout << lastChar << endl;
+	//read character
 	ch = lastChar;
+
+	//check if its EOF
 	if(ch == EOF){
 		Token_type = END_OF_FILE;
 		//cout << "----------Token read:" << lexeme << endl;
@@ -100,11 +113,12 @@ TYPE gettok(){
 	//string
 	else if(ch == '\''){
 		ch = in.get();
+		lexeme = trim(lexeme);
 		while(ch != '\''){
 			lexeme += ch;
 			ch = in.get();
-		}	
-		lexeme = trim(lexeme);
+		}
+
 		lastChar = in.get();
 		Token_type = STRING;
 		//cout << "----------Token read:" << lexeme << endl;
@@ -192,5 +206,6 @@ TYPE gettok(){
 	Token_type = ERROR;
 
 	//cout << "----------Token read:" << lexeme << endl;
+	//no match found
 	return ERROR;
 }
