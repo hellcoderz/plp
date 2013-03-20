@@ -8,6 +8,8 @@
 
 using namespace std;
 
+ExprAST *D(); ExprAST *Dr(); ExprAST *Da(); ExprAST *Db(); ExprAST *E(); ExprAST *Ew(); ExprAST *T(); ExprAST *Ta(); ExprAST *Tc(); ExprAST *B(); ExprAST *Bt(); ExprAST *Bs(); ExprAST *Bp(); ExprAST *A(); ExprAST *At(); ExprAST *Af(); ExprAST *Ap(); ExprAST *R(); ExprAST *Rn(); ExprAST *Vb(); ExprAST *Vl();
+
 enum TYPE{
 	IDENTIFIER, INTEGER, OPERATOR, STRING, BRACKET_OPEN, BRACKET_CLOSE, SEMICOLON, COMMA, END_OF_FILE, ERROR, COMMENT
 };
@@ -25,6 +27,7 @@ struct list{
 ifstream in;
 ofstream out;
 string lexeme;
+TYPE Token_type;
 char lastChar = ' ';
 
 TYPE gettok(){
@@ -33,8 +36,10 @@ TYPE gettok(){
 
 	//cout << lastChar << endl;
 	ch = lastChar;
-	if(ch == EOF)
+	if(ch == EOF){
+		Token_type = END_OF_FILE;
 		return END_OF_FILE;
+	}
 	
 	//skip whitespace
 	while(isspace(ch)){
@@ -50,6 +55,7 @@ TYPE gettok(){
 			ch = in.get();
 		}	
 		lastChar = ch;
+		Token_type = IDENTIFIER;
 		return IDENTIFIER;
 	}
 
@@ -62,6 +68,7 @@ TYPE gettok(){
 			ch = in.get();
 		}	
 		lastChar = ch;
+		Token_type = INTEGER;
 		return INTEGER;
 	}
 	//cout << ch << endl;
@@ -74,12 +81,15 @@ TYPE gettok(){
 			ch = in.get();
 		}	
 		lastChar = in.get();
+		Token_type = STRING;
 		return STRING;
 	}
 	//commnent
 	else if(ch == '/'){
-		if(in.peek() != '/')
+		if(in.peek() != '/'){
+			Token_type = OPERATOR;
 			return OPERATOR;
+		}
 
 		ch = in.get();
 		ch = in.get();
@@ -88,6 +98,7 @@ TYPE gettok(){
 			ch = in.get();			
 		}
 		lastChar = ch;
+		Token_type = COMMENT;
 		return COMMENT;
 	}
 
@@ -100,6 +111,7 @@ TYPE gettok(){
 			ch = in.get();
 		}	
 		lastChar = ch;
+		Token_type = OPERATOR;
 		return OPERATOR;
 	}
 
@@ -107,6 +119,7 @@ TYPE gettok(){
 	else if(ch == '('){
 		lexeme += ch;
 		lastChar = in.get();
+		Token_type = BRACKET_OPEN;
 		return BRACKET_OPEN;
 	}
 
@@ -114,6 +127,7 @@ TYPE gettok(){
 	else if(ch == ')'){
 		lexeme += ch;
 		lastChar = in.get();
+		Token_type = BRACKET_CLOSE;
 		return BRACKET_CLOSE;
 	}
 
@@ -121,6 +135,7 @@ TYPE gettok(){
 	else if(ch == ';'){
 		lexeme += ch;
 		lastChar = in.get();
+		Token_type = SEMICOLON;
 		return SEMICOLON;
 	}
 
@@ -128,10 +143,12 @@ TYPE gettok(){
 	else if(ch == ','){
 		lexeme += ch;
 		lastChar = in.get();
+		Token_type = COMMA;
 		return COMMA;
 	}
 
 	lastChar = ch;
+	Token_type = ERROR;
 	return ERROR;
 }
 
@@ -139,7 +156,9 @@ TYPE gettok(){
 ////AST NODES////////
 /////////////////////
 
-enum ExprType { E_NIL, E_DUMMY, E_INTEGER, E_IDENTIFIER, E_BOOLEAN, E_BINOP, E_UNARYOP, E_STRING, E_LET, E_LAMBDA, E_WHERE, E_TAU, E_AUG, E_COND, E_GAMMA, E_INFIX, E_WITHIN, E_AND, E_REC, E_ASSIGN, E_FUNC_FORM, E_PARENS, E_LIST };
+bool RN_FLAG = 0, VL_FLAG = 0, VB_FLAG = 0;
+
+enum ExprType { E_NIL, E_DUMMY, E_INTEGER, E_IDENTIFIER, E_BOOLEAN, E_BINOP, E_UNARYOP, E_STRING, E_LET, E_LAMBDA, E_WHERE, E_TAU, E_AUG, E_COND, E_GAMMA, E_INFIX, E_WITHIN, E_AND, E_REC, E_ASSIGN, E_FUNC_FORM, E_PARENS, E_LIST, E_ERROR, E_VARLIST };
 
 class ExprAST{
 public:
@@ -383,6 +402,35 @@ public:
 	}
 };
 
+class GammaExprAST: public ExprAST{
+public:
+	ExprType type;
+	ExprAST *Left;
+	ExprAST *Right;
+	GammaExprAST(ExprAST *left,ExprAST *right){
+		type = E_GAMMA;
+		Left = left;
+		Right = right;
+	}
+};
+
+class VariableExprAST: public ExprAST{
+public:
+	ExprType type;
+	vector<ExprAST*> List;
+	VariableExprAST(vector<ExprAST*> list){
+		type = E_VARLIST;
+		List = list;
+	}
+};
+
+class ErrorExprAST: public ExprAST{
+	ExprType type;
+public:
+	ErrorExprAST() {
+		type = E_ERROR;
+	}
+};
 
 //class 
 
@@ -390,8 +438,12 @@ public:
 /////AST GENERATE///////
 ////////////////////////
 
+void p_error(string st){
+	cout << "Parse Error: " << st << endl;
+	exit(0);
+}
+
 void Read(string st){
-	gettok();
 	if(lexeme != st){
 		cout << "Error reading " << st << endl;
 		exit(0);
@@ -441,7 +493,6 @@ ExprAST *T(){
 
 	do{
 		AST_Ta.push_back(Ta());
-		gettok();
 	}while(lexeme == ",");
 
 	return (new TauExprAST(AST_Ta));
@@ -596,8 +647,7 @@ ExprAST *Af(){
 	ExprAST *AST_Af;
 
 	AST_Ap = Ap();
-	while(lexeme == "**"){
-		
+	if(lexeme == "**"){
 		AST_Af = Af();
 		AST_Ap = new BinaryOpExprAST(AST_Ap,AST_Af,B_EXP);
 	}
@@ -626,7 +676,151 @@ ExprAST *R(){
 	ExprAST *AST_R;
 	ExprAST *AST_Rn;
 
-	AST_R = Rn();
+	AST_R = Rn(); 
+	if(RN_FLAG == 1){
+		RN_FLAG = 0;
+		AST_Rn = Rn();
+		while(RN_FLAG == 1){
+			RN_FLAG = 0;
+			AST_R = new GammaExprAST(AST_R,AST_Rn)
+			AST_Rn = Rn();
+		}
+	}
+	RN_FLAG = 0;
+	return AST_R;
+}
+
+ExprAST *Rn(){
+	ExprAST *AST_E;
+
+	switch(gettok()){
+		case IDENTIFIER: RN_FLAG = 1; 
+						 if(lexeme == "true" || lexeme == "false")
+						 	if(lexeme == "true"){
+						 		gettok()
+						 		return (new BooleanExprAST(true));
+						 	}else{
+						 		gettok();
+						 		return (new BooleanExprAST(true));
+						 	}
+						 }else if(lexeme == "nil"){
+						 	gettok();
+						 	return (new NilExprAST());
+						 }else if(lexeme == "dummy"){
+						 	gettok();
+						 	return (new DummyExprAST());
+						 }else{
+						 	gettok();
+						 	return (new IdentifierExprAST(lexeme)); break;
+						 }
+		case INTEGER: RN_FLAG = 1; gettok(); return (new IntegerExprAST(atoi(lexeme.c_str()))); break;
+		case STRING: RN_FLAG = 1; gettok(); return (new StringExprAST(lexeme)); break;
+		case BRACKET_OPEN: RN_FLAG = 1;
+						   gettok();
+						   AST_E = E();
+						   if(Token_type != BRACKET_CLOSE){
+						   		p_error(")");
+						   }
+						   gettok();
+						   return AST_E;
+						   break;
+
+		default : RN_FLAG = 0; gettok();
+	}
+	return (new ErrorExprAST());
+}
+
+ExprAST *D(){
+	ExprAST *AST_Da;
+	ExprAST *AST_D;
+
+	AST_Da = Da();
+	if(lexeme == "within"){
+		AST_D = D();
+		AST_Da = new WithinExprAST(AST_Da, AST_D);
+	}
+
+	return AST_Da;
+}
+
+ExprAST *T(){
+	vector<ExprAST*> AST_Dr;
+
+	do{
+		AST_Dr.push_back(Dr());
+	}while(lexeme == "and");
+
+	return (new AndExprAST(AST_Dr));
+}
+
+ExprAST *Dr(){
+	ExprAST *AST_Dr;
+
+	if(lexeme == "rec"){
+		AST_Dr = Dr();
+		return (new RecExprAST(AST_Dr));
+	}
+	AST_Dr = Dr();
+
+	return AST_Dr;
+}
+
+ExprAST *Db(){
+	ExprAST *AST_Vl;
+	ExprAST *AST_E;
+	vector<ExprAST*> Vb;
+	ExprAST *AST_D;
+
+	AST_Vl = Vl();
+	if(VL_FLAG == 1){	//left
+		gettok();
+		if(lexeme == "="){
+			AST_E = E();
+			return AST_E;
+		}
+
+		while()
+	}
+	VL_FLAG = 0;
+
+}
+
+ExprAST *Vl(){
+	ExprAST *AST_Id;
+	vector<ExprAST*> AST_List;
+
+	if(Token_type == IDENTIFIER){
+		AST_List.push_back(new IdentifierExprAST(lexeme));
+		while(gettok() == COMMA){
+			if(gettok() != IDENTIFIER) p_error("no identifier found");
+			AST_List.push_back(new IdentifierExprAST(lexeme));
+		}
+		VL_FLAG = 1;
+		if(AST_List.size() > 1)
+			return (new IdentifierExprAST(AST_List[0]));
+		else
+			return (new VariableExprAST(AST_List));
+	}
+	VL_FLAG = 0;
+	return (new ErrorExprAST());
+}
+
+ExprAST *Vb(){
+	ExprAST *AST_Vl;
+
+	switch(Token_type){
+		case IDENTIFIER: VB_FLAG = 1; return (new (IdentifierExprAST(lexeme))); break;
+		case BRACKET_OPEN: gettok(); AST_Vl = Vl(); if(VL_FLAG == 1){
+								if(Token_type == BRACKET_OPEN) p_error(")");
+								gettok();
+								return AST_Vl;
+		          		   }
+		          		   if(gettok() != BRACKET_CLOSE) p_error(")");
+		          		   gettok();
+		          		   VB_FLAG = 1;
+		          		   return (new ParensExprAST()); break;
+		default: VB_FLAG = 0; return (new ErrorExprAST());
+	}
 
 }
 
