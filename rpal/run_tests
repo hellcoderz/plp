@@ -3,7 +3,7 @@
 for i in `ls tests`
 do
       echo "Now running test program" $i ...
-       ./p1 -ast               	   tests/$i > last/$i
+       ./lexer               	   tests/$i > vik/$i.last
 #      rpal -l                     tests/$i > tests/$i.out
 #      rpal    -ast                tests/$i > tests/$i.out
 #      rpal         -st            tests/$i > tests/$i.out

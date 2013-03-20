@@ -1,0 +1,2 @@
+let rec rev s = s eq '' -> '' | Conc (rev (Stern s)) (Stem s)
+in Print(rev '1234')

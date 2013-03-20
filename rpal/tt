@@ -1,0 +1,3 @@
+let append a = app (nil aug a) where
+rec app (A) b = b eq 0 -> A | app (A aug b)
+in Print(append 1 2 3 4 0)

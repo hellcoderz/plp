@@ -1,7 +1,0 @@
-#!/bin/sh
-#
-for i in `ls rast`
-do
-      echo "Now running diff program" $i ...
-       diff -wB   rast/$i last/$i
-done
