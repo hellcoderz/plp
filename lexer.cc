@@ -63,7 +63,7 @@ TYPE gettok(){
 	}
 	
 	//skip whitespace
-	while(isspace(ch)){
+	while(isspace(ch) || ch == '\n' || ch == '\t'){
 		ch = in.get();
 	}
 
@@ -78,7 +78,7 @@ TYPE gettok(){
 		lexeme = trim(lexeme);
 		lastChar = ch;
 		Token_type = IDENTIFIER;
-		cout << "----------Token read:" << lexeme << endl;
+		//cout << "----------Token read:" << lexeme << endl;
 		return IDENTIFIER;
 	}
 
@@ -93,7 +93,7 @@ TYPE gettok(){
 		lexeme = trim(lexeme);
 		lastChar = ch;
 		Token_type = INTEGER;
-		cout << "----------Token read:" << lexeme << endl;
+		//cout << "----------Token read:" << lexeme << endl;
 		return INTEGER;
 	}
 	//cout << ch << endl;
@@ -108,7 +108,7 @@ TYPE gettok(){
 		lexeme = trim(lexeme);
 		lastChar = in.get();
 		Token_type = STRING;
-		cout << "----------Token read:" << lexeme << endl;
+		//cout << "----------Token read:" << lexeme << endl;
 		return STRING;
 	}
 	//commnent
@@ -116,22 +116,22 @@ TYPE gettok(){
 		if(in.peek() != '/'){
 			lexeme = "/";
 			lexeme = trim(lexeme);
+			lastChar = in.get();
 			Token_type = OPERATOR;
-			cout << "----------Token read:" << lexeme << endl;
+			//cout << "----------/Token read:" << lexeme << endl;
 			return OPERATOR;
 		}
 
-		ch = in.get();
 		ch = in.get();
 		while(ch != '\n'){
 			lexeme += ch;
 			ch = in.get();			
 		}
 		lexeme = trim(lexeme);
-		lastChar = ch;
+		lastChar = in.get();
 		Token_type = COMMENT;
 		//cout << "----------Token read:" << lexeme << endl;
-		return COMMENT;
+		return gettok();
 	}
 
 	//operator
@@ -145,7 +145,7 @@ TYPE gettok(){
 		lexeme = trim(lexeme);	
 		lastChar = ch;
 		Token_type = OPERATOR;
-		cout << "----------Token read:" << lexeme << endl;
+		//cout << "----------Token read:" << lexeme << endl;
 		return OPERATOR;
 	}
 
@@ -218,7 +218,7 @@ public:
 	}
 };
 
-ExprAST *D(); ExprAST *Dr(); ExprAST *Da(); ExprAST *Db(); ExprAST *E(); ExprAST *Ew(); ExprAST *T(); ExprAST *Ta(); ExprAST *Tc(); ExprAST *B(); ExprAST *Bt(); ExprAST *Bs(); ExprAST *Bp(); ExprAST *A(); ExprAST *At(); ExprAST *Af(); ExprAST *Ap(); ExprAST *R(); ExprAST *Rn(); ExprAST *Vb(); ExprAST *Vl();
+ExprAST *D(); ExprAST *Dr(); ExprAST *Da(); ExprAST *Db(); ExprAST *E(); ExprAST *Ew(); ExprAST *T(); ExprAST *Ta(); ExprAST *Tc(); ExprAST *B(); ExprAST *Bt(); ExprAST *Bs(); ExprAST *Bp(); ExprAST *A(); ExprAST *At(); ExprAST *Af(); ExprAST *Ap(); ExprAST *R(); ExprAST *Rn(); ExprAST *Vb(); ExprAST *Vl(); void print(ExprAST *AST, int DEPTH);
 
 class IntegerExprAST: public ExprAST{
 public:
@@ -611,14 +611,15 @@ ExprAST *E(){
 	vector<ExprAST*> AST_Vb;
 	ExprAST *AST_E;
 
-	cout << "Inside E" << endl;
-	cout << lexeme << endl;
+	//cout << "Inside E" << endl;
+	//cout << lexeme << endl;
 	if(lexeme == "let" || lexeme == "fn"){
 		if(lexeme == "let"){
 			gettok();  //changed
 			AST_D = D();
 			//cout << ">>>>>>>>>>>>>Type= " << AST_D->getType() << endl;
 			Read("in");
+
 			AST_E = E();
 			return (new LetExprAST(AST_D,AST_E));
 		}else{
@@ -629,7 +630,9 @@ ExprAST *E(){
 				AST_Vb.push_back(Vb());
 			}while(lexeme != ".");
 			Read(".");
+			//cout << "lexeme = " << lexeme << endl;
 			AST_E = E();
+			//print(AST_E,10);
 			return (new LambdaExprAST(AST_Vb,AST_E));			
 		}
 	}
@@ -640,7 +643,7 @@ ExprAST *Ew(){
 	ExprAST *AST_T;
 	ExprAST *AST_Dr;
 
-	cout << "Inside Ew" << endl;
+	//cout << "Inside Ew" << endl;
 	AST_T = T();
 	if(lexeme == "where"){
 		gettok();   //changed
@@ -655,7 +658,7 @@ ExprAST *T(){
 	vector<ExprAST*> AST_Ta;
 	string temp;
 
-	cout << "Inside T" << endl;
+	//cout << "Inside T" << endl;
 	do{
 		//cout << "================ INSIDE TAU LOOP" << AST_Ta.size() << endl;
 		if(AST_Ta.size() >= 1)
@@ -674,7 +677,7 @@ ExprAST *Ta(){
 	ExprAST *AST_Tc;
 	ExprAST *AST_Left;
 
-	cout << "Inside Ta" << endl;
+	//cout << "Inside Ta" << endl;
 	AST_Ta = Tc();
 	AST_Left = AST_Ta;
 	while(lexeme == "aug"){
@@ -690,7 +693,7 @@ ExprAST *Tc(){
 	ExprAST *AST_Tc_if;
 	ExprAST *AST_Tc_else;
 
-	cout << "Inside Tc" << endl;
+	//cout << "Inside Tc" << endl;
 	AST_B = B();
 	if(lexeme == "->"){
 		gettok();
@@ -707,7 +710,7 @@ ExprAST *B(){
 	ExprAST *AST_B;
 	ExprAST *AST_Bt;
 
-	cout << "Inside B" << endl;
+	//cout << "Inside B" << endl;
 	AST_B = Bt();
 	while(lexeme == "or"){
 		gettok();
@@ -722,7 +725,7 @@ ExprAST *Bt(){
 	ExprAST *AST_Bt;
 	ExprAST *AST_Bs;
 
-	cout << "Inside Bt" << endl;
+	//cout << "Inside Bt" << endl;
 	AST_Bt = Bs();
 	while(lexeme == "&"){
 		gettok();
@@ -736,8 +739,9 @@ ExprAST *Bt(){
 ExprAST *Bs(){
 	ExprAST *AST_Bp;
 
-	cout << "Inside Bs" << endl;
+	//cout << "Inside Bs" << endl;
 	if(lexeme == "not"){
+		gettok(); //new changed
 		AST_Bp = Bp(); 
 		return (new UnaryOpExprAST(AST_Bp,U_NOT));
 	}else{
@@ -749,7 +753,7 @@ ExprAST *Bp(){
 	ExprAST *AST_Left;
 	ExprAST *AST_Right;
 
-	cout << "Inside Bp" << endl;
+	//cout << "Inside Bp" << endl;
 	AST_Left = A();
 	if(lexeme == "gr" || lexeme == ">"){
 		gettok();  //changed
@@ -784,7 +788,7 @@ ExprAST *A(){
 	ExprAST *AST_A;
 	ExprAST *AST_At;
 
-	cout << "Inside A" << endl;
+	//cout << "Inside A" << endl;
 	if(lexeme == "+" || lexeme == "-"){
 		if(lexeme == "+"){
 			gettok();  //changed
@@ -817,9 +821,10 @@ ExprAST *At(){
 	ExprAST *AST_At;
 	ExprAST *AST_Af;
 
-	cout << "Inside At" << endl;
+	//cout << "Inside At" << endl;
 	//cout << lexeme << " : " << Token_type << endl;
 	AST_At = Af();
+	//cout << "Outside At" << endl;
 	while(lexeme == "*" || lexeme == "/"){
 		if(lexeme == "*"){
 			gettok();	//changed
@@ -839,12 +844,14 @@ ExprAST *Af(){
 	ExprAST *AST_Ap;
 	ExprAST *AST_Af;
 
-	cout << "Inside Af" << endl;
-	cout << "==============  " << lexeme << endl;
+	//cout << "Inside Af" << endl;
+	//cout << "==============  " << lexeme << endl;
 	AST_Ap = Ap();
+	//cout << "Outside Af" << endl;
+	//cout << "==============  " << lexeme << endl;
 	if(lexeme == "**"){
 		gettok(); //changed
-		cout << "inside Af if" << endl;
+		//cout << "inside Af if" << endl;
 		AST_Af = Af();
 		AST_Ap = new BinaryOpExprAST(AST_Ap,AST_Af,B_EXP);
 	}
@@ -857,8 +864,9 @@ ExprAST *Ap(){
 	ExprAST *AST_R;
 	ExprAST *AST_Id;
 	
-	cout << "Inside Ap" << endl;
+	//cout << "Inside Ap" << endl;
 	AST_Ap = R();
+	//cout << "out side Ap" << endl;
 	//cout << lexeme << " -> " << Token_type << endl;
 	while(lexeme == "@"){
 	//	cout << "got @" << endl;
@@ -878,16 +886,16 @@ ExprAST *R(){
 	ExprAST *AST_R;
 	ExprAST *AST_Rn;
 
-	cout << "Inside R" << endl;
+	//cout << "Inside R" << endl;
 	//cout << lexeme << " : " << Token_type << endl;
 	AST_R = Rn(); 
 	if(RN_FLAG == 1){
 		RN_FLAG = 0;
-		cout << "Inside first if" << endl;
+		//cout << "Inside first if" << endl;
 		//cout << lexeme << " : " << Token_type << endl;
 		AST_Rn = Rn();
 		while(RN_FLAG == 1){
-			cout << "Inside second if" << endl;
+			//cout << "Inside second if" << endl;
 			//cout << lexeme << " : " << Token_type << endl;
 			RN_FLAG = 0;
 			AST_R = new GammaExprAST(AST_R,AST_Rn);
@@ -904,8 +912,8 @@ ExprAST *Rn(){
 	int res;
 	string temp;
 	
-	cout << "Inside Rn" << endl;
-	cout << lexeme << " : " << Token_type << endl;
+	//cout << "Inside Rn" << endl;
+	//cout << lexeme << " : " << Token_type << endl;
 	switch(Token_type){
 		case IDENTIFIER: for(int i = 0; i< no_of_keywords ;i++){  //changed
 							if(lexeme == reserverd[i]){
@@ -959,7 +967,7 @@ ExprAST *D(){
 	ExprAST *AST_Da;
 	ExprAST *AST_D;
 
-	cout << "Inside D" << endl;
+	//cout << "Inside D" << endl;
 	AST_Da = Da();
 	if(lexeme == "within"){
 		AST_D = D();
@@ -972,7 +980,7 @@ ExprAST *D(){
 ExprAST *Da(){
 	vector<ExprAST*> AST_Dr;
 
-	cout << "Inside Da" << endl;
+	//cout << "Inside Da" << endl;
 	do{
 		if(AST_Dr.size() >= 1)
 			gettok();
@@ -989,7 +997,7 @@ ExprAST *Da(){
 ExprAST *Dr(){
 	ExprAST *AST_Db;
 
-	cout << "Inside Dr" << endl;
+	//cout << "Inside Dr" << endl;
 	if(lexeme == "rec"){
 		gettok();  //changed
 		AST_Db = Db();
@@ -1006,7 +1014,7 @@ ExprAST *Db(){
 	vector<ExprAST*> AST_Vb;
 	ExprAST *AST_D;
 
-	cout << "Inside Db" << endl;
+	//cout << "Inside Db" << endl;
 	AST_Vl = Vl();
 	if(VL_FLAG == 1){	
 		if(lexeme == "="){
@@ -1046,7 +1054,7 @@ ExprAST *Vl(){
 	vector<ExprAST*> AST_List;
 
 	//cout << lexeme << " : " << Token_type << endl;
-	cout << "Inside Vl" << endl;
+	//cout << "Inside Vl" << endl;
 	if(Token_type == IDENTIFIER){
 		AST_List.push_back(new IdentifierExprAST(lexeme));
 		while(gettok() == COMMA){
@@ -1068,7 +1076,7 @@ ExprAST *Vb(){
 	ExprAST *AST_Vl;
 	string temp;
 
-	cout << "Inside Vb" << endl;
+	//cout << "Inside Vb" << endl;
 	switch(Token_type){
 		case IDENTIFIER: for(int i = 0; i< no_of_keywords ;i++){  //changed
 							if(lexeme == reserverd[i]){
@@ -1119,7 +1127,7 @@ void print(ExprAST *AST, int DEPTH){
 		cout << "<INT:" << i->Val << ">" << endl;
 	}else if(type == E_STRING){
 		StringExprAST *s = (StringExprAST*) AST;
-		cout << "<STR:" << s->Val << ">" << endl;
+		cout << "<STR:'" << s->Val << "'>" << endl;
 	}else if(type == E_BOOLEAN){
 		BooleanExprAST *b = (BooleanExprAST*) AST;
 		string val;
@@ -1173,7 +1181,7 @@ void print(ExprAST *AST, int DEPTH){
 			cout << "or" << endl;
 
 		}else if(bin->OP == B_AND){
-			cout << "and" << endl;
+			cout << "&" << endl;
 
 		}else if(bin->OP == B_NE){
 			cout << "ne" << endl;
@@ -1209,7 +1217,7 @@ void print(ExprAST *AST, int DEPTH){
 		cout << "aug" << endl;
 		print(aug->Ta,DEPTH);
 		print(aug->Tc,DEPTH);
-	}else if(type == E_LET){
+	}else if(type == E_COND){
 		CondExprAST *c = (CondExprAST*) AST;
 		cout << "->" << endl;
 		print(c->B,DEPTH);
@@ -1221,6 +1229,7 @@ void print(ExprAST *AST, int DEPTH){
 		for(int i = 0;i<lam->Vb.size();i++){
 			print(lam->Vb[i], DEPTH);
 		}
+		print(lam->E,DEPTH);
 	}else if( type == E_TAU){				
 		TauExprAST *tau = (TauExprAST*)AST; 
 		cout << "tau" << endl;
